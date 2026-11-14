@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -47,6 +47,9 @@ load: ## Load TPC-DS into Oracle; pass options via ARGS="--scale-factor 0.1"
 
 noise: ## Create junk tables, views and functions in Oracle (after `make load`)
 	uv run python -m warehouse_scout.ingest.noise_tables $(ARGS)
+
+querylog: ## Generate the synthetic query log into data/query_log.jsonl
+	uv run python -m warehouse_scout.ingest.query_log $(ARGS)
 
 psql: ## Open a Postgres shell
 	docker compose exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
