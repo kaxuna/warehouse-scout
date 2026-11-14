@@ -12,7 +12,6 @@ The scale factor is TPC-DS's size knob: 1 means about 1 GB of raw data.
 """
 
 import argparse
-import re
 import sys
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -23,6 +22,7 @@ import oracledb
 
 from warehouse_scout.config import get_settings
 from warehouse_scout.db import connect_oracle
+from warehouse_scout.sqlutil import checked_identifier
 
 DEFAULT_SCALE_FACTOR = 0.01
 DEFAULT_BATCH_SIZE = 10_000
@@ -38,11 +38,6 @@ _FIXED_TYPES = {
     "VARCHAR": "VARCHAR2(4000)",
     "DATE": "DATE",
 }
-
-# Table and column names are placed into DDL as text, because SQL bind
-# parameters cannot stand in for identifiers. Accepting only plain names keeps
-# anything unexpected out of the statement.
-_IDENTIFIER = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
 
 
 @dataclass(frozen=True)
@@ -76,18 +71,12 @@ def create_table_ddl(table: str, columns: Sequence[Column]) -> str:
         raise ValueError(f"Table {table!r} has no columns")
 
     column_defs = ", ".join(_column_ddl(column) for column in columns)
-    return f"CREATE TABLE {_checked_identifier(table)} ({column_defs})"
+    return f"CREATE TABLE {checked_identifier(table)} ({column_defs})"
 
 
 def _column_ddl(column: Column) -> str:
     not_null = "" if column.nullable else " NOT NULL"
-    return f"{_checked_identifier(column.name)} {oracle_type(column.duckdb_type)}{not_null}"
-
-
-def _checked_identifier(name: str) -> str:
-    if not _IDENTIFIER.fullmatch(name):
-        raise ValueError(f"Not a plain SQL identifier: {name!r}")
-    return name
+    return f"{checked_identifier(column.name)} {oracle_type(column.duckdb_type)}{not_null}"
 
 
 # --- Reading from DuckDB -------------------------------------------------------
@@ -132,7 +121,7 @@ def iter_batches(
     """
     # A separate cursor, so other queries on `duck` cannot disturb this result set.
     cursor = duck.cursor()
-    cursor.execute(f"SELECT * FROM {_checked_identifier(table)}")
+    cursor.execute(f"SELECT * FROM {checked_identifier(table)}")
     while batch := cursor.fetchmany(batch_size):
         yield batch
 
@@ -167,7 +156,7 @@ def load_table(
 
 def count_rows(ora: oracledb.Connection, table: str) -> int:
     with ora.cursor() as cursor:
-        cursor.execute(f"SELECT COUNT(*) FROM {_checked_identifier(table)}")
+        cursor.execute(f"SELECT COUNT(*) FROM {checked_identifier(table)}")
         (count,) = cursor.fetchone()
     return int(count)
 

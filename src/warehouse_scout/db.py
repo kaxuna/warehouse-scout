@@ -17,6 +17,11 @@ import psycopg
 
 from warehouse_scout.config import Settings
 
+# Oracle NUMBER columns with decimals come back as Python floats by default,
+# which cannot represent values like 0.1 exactly. A migration tool compares
+# numbers between databases, so fetch them as exact Decimals instead.
+oracledb.defaults.fetch_decimals = True
+
 
 def connect_postgres(
     settings: Settings, *, readonly: bool = False
