@@ -29,3 +29,18 @@ CREATE TABLE IF NOT EXISTS scout.query_log (
 );
 
 CREATE INDEX IF NOT EXISTS query_log_started_at ON scout.query_log (started_at);
+
+-- Searchable chunks of the snapshot with their embedding vectors.
+-- `embedding` has no fixed length so different embedders can be stored;
+-- `embedder` says which model produced each vector, and a search only
+-- compares vectors of the same embedder.
+CREATE TABLE IF NOT EXISTS scout.chunk (
+    id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    embedder    text NOT NULL,
+    kind        text NOT NULL CHECK (kind IN ('table', 'view', 'function', 'query')),
+    object_name text NOT NULL,
+    content     text NOT NULL,
+    metadata    jsonb NOT NULL DEFAULT '{}',
+    embedding   vector NOT NULL,
+    UNIQUE (embedder, kind, object_name)
+);
