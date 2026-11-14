@@ -34,6 +34,7 @@ from warehouse_scout.config import Settings, get_settings
 from warehouse_scout.ingest.query_log import render
 from warehouse_scout.ingest.query_templates import QUERY_TEMPLATES
 from warehouse_scout.llm.client import has_credentials, make_client
+from warehouse_scout.rag.embedder import make_embedder
 from warehouse_scout.tools import build_tools
 from warehouse_scout.translate import SqlglotTranslator, Translator
 from warehouse_scout.warehouse import run_readonly
@@ -72,7 +73,7 @@ def _agent(settings: Settings) -> Translator:
         model=settings.scout_model,
         system=load_prompt(source_schema=settings.oracle_user.upper()),
         # The agent's own draft tool is sqlglot: it starts where the baseline ends.
-        tools=build_tools(settings, SqlglotTranslator()),
+        tools=build_tools(settings, SqlglotTranslator(), make_embedder(settings.scout_embedder)),
         effort=settings.scout_effort,
     )
 

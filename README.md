@@ -35,6 +35,7 @@ make querylog # write a synthetic 30-day query history to data/query_log.jsonl
 make copy-target  # copy all Oracle tables into Postgres, the migration target
 make extract  # read schema and query log from the source into Scout's own tables
 make index    # embed schema and query log into the pgvector search index
+make eval-retrieval    # score search: is the right object in the top 5?
 make eval-translation  # score a translator against real results on both databases
 ```
 
@@ -54,7 +55,15 @@ PostgreSQL, and the rows are compared. A case passes only if both return the sam
 |---|---|---|---|
 | 2026-11-14 | sqlglot alone (baseline, after eval hardening) | 21 / 42 (50%) | $0 |
 
-Run history: `evals/history/translation.jsonl`. What each change did: [CHANGELOG](CHANGELOG.md).
+Retrieval eval: 32 questions phrased without the objects' own words; is a right answer in the
+top 5 search hits?
+
+| Date | Embedder | Recall@5 | MRR |
+|---|---|---|---|
+| 2026-11-14 | Word counts (baseline) | 38% | 0.22 |
+| 2026-11-14 | bge-small, local, with kind filter | 91% | 0.84 |
+
+Run history: `evals/history/`. What each change did: [CHANGELOG](CHANGELOG.md).
 
 ## Known limitations
 

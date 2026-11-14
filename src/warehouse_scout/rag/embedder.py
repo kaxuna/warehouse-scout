@@ -27,7 +27,15 @@ class Embedder(Protocol):
     dimensions: int
 
     def embed(self, texts: Sequence[str]) -> list[Vector]:
-        """One vector per text, each of length `dimensions` and of unit length."""
+        """One vector per stored text, each of length `dimensions` and of unit length."""
+        ...
+
+    def embed_query(self, text: str) -> Vector:
+        """The vector for a search question.
+
+        Separate from `embed` because some models are trained to treat a short
+        question and the long passage that answers it differently.
+        """
         ...
 
 
@@ -47,6 +55,11 @@ class FastEmbedEmbedder:
     def embed(self, texts: Sequence[str]) -> list[Vector]:
         return [vector.tolist() for vector in self._model.embed(list(texts))]
 
+    def embed_query(self, text: str) -> Vector:
+        # query_embed adds the instruction prefix this model family expects on questions.
+        (vector,) = self._model.query_embed(text)
+        return list(vector.tolist())
+
 
 class HashEmbedder:
     """Bag of words: each word adds 1 to a slot chosen by hashing the word.
@@ -62,6 +75,9 @@ class HashEmbedder:
 
     def embed(self, texts: Sequence[str]) -> list[Vector]:
         return [self._embed_one(text) for text in texts]
+
+    def embed_query(self, text: str) -> Vector:
+        return self._embed_one(text)
 
     def _embed_one(self, text: str) -> Vector:
         vector = [0.0] * self.dimensions

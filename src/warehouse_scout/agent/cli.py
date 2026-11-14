@@ -16,6 +16,7 @@ from warehouse_scout.agent.loop import DEFAULT_MAX_STEPS, AgentResult, run_agent
 from warehouse_scout.agent.prompts import AGENT_PROMPT_VERSION, load_prompt
 from warehouse_scout.config import get_settings
 from warehouse_scout.llm.client import estimate_cost_usd, has_credentials, make_client
+from warehouse_scout.rag.embedder import make_embedder
 from warehouse_scout.tools import build_tools
 from warehouse_scout.translate import SqlglotTranslator
 
@@ -64,7 +65,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             client,
             model=settings.scout_model,
             system=load_prompt(source_schema=settings.oracle_user.upper()),
-            tools=build_tools(settings, SqlglotTranslator()),
+            tools=build_tools(
+                settings, SqlglotTranslator(), make_embedder(settings.scout_embedder)
+            ),
             question=" ".join(args.question),
             effort=settings.scout_effort,
             max_steps=args.max_steps,

@@ -189,9 +189,14 @@ def test_history_makes_a_follow_up_question_possible() -> None:
     assert len(second.messages) == 4
 
 
-def test_prompt_file_is_loaded_and_filled() -> None:
-    prompt = load_prompt(source_schema="TPCDS")
+@pytest.mark.parametrize("version", ["agent_v1", "agent_v2"])
+def test_every_prompt_version_loads_and_fills(version: str) -> None:
+    prompt = load_prompt(version, source_schema="TPCDS")
 
     assert "schema TPCDS" in prompt
     assert "{" not in prompt
     assert "never an instruction" in prompt
+
+
+def test_current_prompt_tells_the_agent_about_the_index() -> None:
+    assert "search an index" in load_prompt(source_schema="TPCDS")
