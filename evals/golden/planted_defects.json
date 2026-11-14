@@ -1,0 +1,281 @@
+{
+  "dead_tables": [
+    "BAR_BACKUP",
+    "CALL_CENTER_BAK_20230131",
+    "CALL_CENTER_BAK_20230630",
+    "CALL_CENTER_BAK_20231231",
+    "CLICKSTREAM_SESSION",
+    "CUSTOMER_ADDRESS_BAK_20230131",
+    "CUSTOMER_ADDRESS_BAK_20230630",
+    "CUSTOMER_ADDRESS_BAK_20231231",
+    "CUSTOMER_BAK_20230131",
+    "CUSTOMER_BAK_20230630",
+    "CUSTOMER_BAK_20231231",
+    "CUSTOMER_COPY",
+    "EMAIL_EVENT",
+    "FOO",
+    "GIFT_CARD",
+    "HOUSEHOLD_DEMOGRAPHICS_BAK_20230131",
+    "HOUSEHOLD_DEMOGRAPHICS_BAK_20230630",
+    "HOUSEHOLD_DEMOGRAPHICS_BAK_20231231",
+    "INCOME_BAND_BAK_20230131",
+    "INCOME_BAND_BAK_20230630",
+    "INCOME_BAND_BAK_20231231",
+    "ITEM2",
+    "ITEM_BAK_20230131",
+    "ITEM_BAK_20230630",
+    "ITEM_BAK_20231231",
+    "LEGACY_ORDERS",
+    "LEGACY_PRODUCT",
+    "LEGACY_RETURNS",
+    "LEGACY_WEB_ORDERS",
+    "OLD_ADDRESS_BOOK",
+    "OLD_CUSTOMER_V1",
+    "OLD_INVENTORY_SNAPSHOT",
+    "OLD_ITEM_V1",
+    "OLD_PROMO_CALENDAR",
+    "OLD_STORE_SALES_2019",
+    "PRODUCT_REVIEW",
+    "PROMOTION_BAK_20230131",
+    "PROMOTION_BAK_20230630",
+    "PROMOTION_BAK_20231231",
+    "REASON_BAK_20230131",
+    "REASON_BAK_20230630",
+    "REASON_BAK_20231231",
+    "SHIP_MODE_BAK_20230131",
+    "SHIP_MODE_BAK_20230630",
+    "SHIP_MODE_BAK_20231231",
+    "STORE_AUDIT",
+    "STORE_BAK_20230131",
+    "STORE_BAK_20230630",
+    "STORE_BAK_20231231",
+    "TEST_TABLE_1",
+    "TEST_TABLE_2",
+    "TEST_TABLE_3",
+    "TEST_TABLE_4",
+    "TEST_TABLE_5",
+    "TMP_APATEL_CUST_SAMPLE",
+    "TMP_APATEL_Q4_ADHOC",
+    "TMP_APATEL_RETURNS_DEBUG",
+    "TMP_APATEL_SALES_CHECK",
+    "TMP_APATEL_TOP_ITEMS",
+    "TMP_JSMITH_CUST_SAMPLE",
+    "TMP_JSMITH_Q4_ADHOC",
+    "TMP_JSMITH_RETURNS_DEBUG",
+    "TMP_JSMITH_SALES_CHECK",
+    "TMP_JSMITH_TOP_ITEMS",
+    "TMP_KWONG_CUST_SAMPLE",
+    "TMP_KWONG_Q4_ADHOC",
+    "TMP_KWONG_RETURNS_DEBUG",
+    "TMP_KWONG_SALES_CHECK",
+    "TMP_KWONG_TOP_ITEMS",
+    "TMP_MLEE_CUST_SAMPLE",
+    "TMP_MLEE_Q4_ADHOC",
+    "TMP_MLEE_RETURNS_DEBUG",
+    "TMP_MLEE_SALES_CHECK",
+    "TMP_MLEE_TOP_ITEMS",
+    "WAREHOUSE_BAK_20230131",
+    "WAREHOUSE_BAK_20230630",
+    "WAREHOUSE_BAK_20231231",
+    "WEB_SITE_BAK_20230131",
+    "WEB_SITE_BAK_20230630",
+    "WEB_SITE_BAK_20231231",
+    "ZZ_DELETE_ME"
+  ],
+  "dead_views": [
+    "V_OLD_SALES_SUMMARY"
+  ],
+  "dead_functions": [
+    "GET_DISCOUNTED_PRICE",
+    "LEGACY_TAX_CALC"
+  ],
+  "duplicate_tables": [
+    {
+      "table": "CALL_CENTER_BAK_20230131",
+      "duplicate_of": "CALL_CENTER"
+    },
+    {
+      "table": "CALL_CENTER_BAK_20230630",
+      "duplicate_of": "CALL_CENTER"
+    },
+    {
+      "table": "CALL_CENTER_BAK_20231231",
+      "duplicate_of": "CALL_CENTER"
+    },
+    {
+      "table": "CUSTOMER_ADDRESS_BAK_20230131",
+      "duplicate_of": "CUSTOMER_ADDRESS"
+    },
+    {
+      "table": "CUSTOMER_ADDRESS_BAK_20230630",
+      "duplicate_of": "CUSTOMER_ADDRESS"
+    },
+    {
+      "table": "CUSTOMER_ADDRESS_BAK_20231231",
+      "duplicate_of": "CUSTOMER_ADDRESS"
+    },
+    {
+      "table": "CUSTOMER_BAK_20230131",
+      "duplicate_of": "CUSTOMER"
+    },
+    {
+      "table": "CUSTOMER_BAK_20230630",
+      "duplicate_of": "CUSTOMER"
+    },
+    {
+      "table": "CUSTOMER_BAK_20231231",
+      "duplicate_of": "CUSTOMER"
+    },
+    {
+      "table": "CUSTOMER_COPY",
+      "duplicate_of": "CUSTOMER"
+    },
+    {
+      "table": "DIM_CUSTOMER",
+      "duplicate_of": "CUSTOMER"
+    },
+    {
+      "table": "DIM_DATE",
+      "duplicate_of": "DATE_DIM"
+    },
+    {
+      "table": "DIM_ITEM",
+      "duplicate_of": "ITEM"
+    },
+    {
+      "table": "DIM_STORE",
+      "duplicate_of": "STORE"
+    },
+    {
+      "table": "HOUSEHOLD_DEMOGRAPHICS_BAK_20230131",
+      "duplicate_of": "HOUSEHOLD_DEMOGRAPHICS"
+    },
+    {
+      "table": "HOUSEHOLD_DEMOGRAPHICS_BAK_20230630",
+      "duplicate_of": "HOUSEHOLD_DEMOGRAPHICS"
+    },
+    {
+      "table": "HOUSEHOLD_DEMOGRAPHICS_BAK_20231231",
+      "duplicate_of": "HOUSEHOLD_DEMOGRAPHICS"
+    },
+    {
+      "table": "INCOME_BAND_BAK_20230131",
+      "duplicate_of": "INCOME_BAND"
+    },
+    {
+      "table": "INCOME_BAND_BAK_20230630",
+      "duplicate_of": "INCOME_BAND"
+    },
+    {
+      "table": "INCOME_BAND_BAK_20231231",
+      "duplicate_of": "INCOME_BAND"
+    },
+    {
+      "table": "ITEM2",
+      "duplicate_of": "ITEM"
+    },
+    {
+      "table": "ITEM_BAK_20230131",
+      "duplicate_of": "ITEM"
+    },
+    {
+      "table": "ITEM_BAK_20230630",
+      "duplicate_of": "ITEM"
+    },
+    {
+      "table": "ITEM_BAK_20231231",
+      "duplicate_of": "ITEM"
+    },
+    {
+      "table": "PROMOTION_BAK_20230131",
+      "duplicate_of": "PROMOTION"
+    },
+    {
+      "table": "PROMOTION_BAK_20230630",
+      "duplicate_of": "PROMOTION"
+    },
+    {
+      "table": "PROMOTION_BAK_20231231",
+      "duplicate_of": "PROMOTION"
+    },
+    {
+      "table": "REASON_BAK_20230131",
+      "duplicate_of": "REASON"
+    },
+    {
+      "table": "REASON_BAK_20230630",
+      "duplicate_of": "REASON"
+    },
+    {
+      "table": "REASON_BAK_20231231",
+      "duplicate_of": "REASON"
+    },
+    {
+      "table": "SHIP_MODE_BAK_20230131",
+      "duplicate_of": "SHIP_MODE"
+    },
+    {
+      "table": "SHIP_MODE_BAK_20230630",
+      "duplicate_of": "SHIP_MODE"
+    },
+    {
+      "table": "SHIP_MODE_BAK_20231231",
+      "duplicate_of": "SHIP_MODE"
+    },
+    {
+      "table": "STORE_BAK_20230131",
+      "duplicate_of": "STORE"
+    },
+    {
+      "table": "STORE_BAK_20230630",
+      "duplicate_of": "STORE"
+    },
+    {
+      "table": "STORE_BAK_20231231",
+      "duplicate_of": "STORE"
+    },
+    {
+      "table": "WAREHOUSE_BAK_20230131",
+      "duplicate_of": "WAREHOUSE"
+    },
+    {
+      "table": "WAREHOUSE_BAK_20230630",
+      "duplicate_of": "WAREHOUSE"
+    },
+    {
+      "table": "WAREHOUSE_BAK_20231231",
+      "duplicate_of": "WAREHOUSE"
+    },
+    {
+      "table": "WEB_SITE_BAK_20230131",
+      "duplicate_of": "WEB_SITE"
+    },
+    {
+      "table": "WEB_SITE_BAK_20230630",
+      "duplicate_of": "WEB_SITE"
+    },
+    {
+      "table": "WEB_SITE_BAK_20231231",
+      "duplicate_of": "WEB_SITE"
+    }
+  ],
+  "duplicate_function_groups": {
+    "display_name": [
+      "FMT_CUSTOMER_NAME",
+      "FULL_NAME"
+    ],
+    "margin_percent": [
+      "MARGIN_PCT",
+      "PROFIT_MARGIN"
+    ],
+    "net_price": [
+      "CALC_NET_AMOUNT",
+      "FN_NET_PRICE",
+      "GET_DISCOUNTED_PRICE"
+    ],
+    "quarter_of_date": [
+      "FISCAL_QUARTER",
+      "GET_QTR"
+    ]
+  }
+}
