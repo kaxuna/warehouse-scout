@@ -31,6 +31,7 @@ make up       # start Postgres + Oracle (creates .env from .env.example on first
 make check    # lint, type check, unit tests
 make load     # generate TPC-DS and copy it into Oracle
 make noise    # add ~100 junk tables, views and duplicate functions
+make querylog # write a synthetic 30-day query history to data/query_log.jsonl
 ```
 
 Add your `ANTHROPIC_API_KEY` to `.env`. It is git-ignored; never commit it.
