@@ -73,11 +73,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    settings = get_settings()
-
+    # Checked before settings are loaded: a missing input file should be
+    # reported even on a machine with no database configuration at all.
     if not args.query_log.exists():
         print(f"{args.query_log} not found. Run `make querylog` first.", file=sys.stderr)
         return 1
+    settings = get_settings()
 
     with connect_oracle(settings, readonly=True) as ora:
         objects = extract_schema(ora, settings.oracle_user)
