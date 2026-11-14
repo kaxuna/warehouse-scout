@@ -20,6 +20,11 @@ Golden question set: 52 questions generated from the project's ground truth
 names, numbers); 8 free-text questions carry a rubric for the judge model.
 `make eval-qa` asks the agent. Not yet scored: needs an API key.
 
+Judge model for the 8 rubric questions: prompt `judge_v1`, structured verdict
+(reasoning, then pass/fail). `make eval-judge` measures its agreement with 10
+human-labelled answers, one of which tries to instruct the judge. Not yet
+measured: needs an API key.
+
 ### Week 3 — retrieval
 
 Retrieval eval: 32 questions, each with the objects that answer it. Is a right

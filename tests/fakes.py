@@ -46,6 +46,9 @@ class ScriptedMessages:
             raise AssertionError("The agent made more API calls than the test scripted.")
         return self._responses.pop(0)
 
+    # `messages.parse` (structured output) is scripted the same way as `create`.
+    parse = create
+
 
 def scripted_client(*responses: SimpleNamespace) -> tuple[anthropic.Anthropic, ScriptedMessages]:
     messages = ScriptedMessages(list(responses))

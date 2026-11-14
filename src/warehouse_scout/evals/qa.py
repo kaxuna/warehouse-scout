@@ -1,7 +1,8 @@
 """Question-answering eval: ask the golden questions, check the answers.
 
     make eval-qa ARGS="--limit 5"    # smoke run, not recorded (costs money)
-    make eval-qa                     # all questions
+    make eval-qa                     # all questions, fact checks only
+    make eval-qa ARGS="--judge"      # also grade the free-text answers with the judge model
 
 The system under test is anything with `answer(question) -> str`. Answers to
 fact questions are checked deterministically (`checks.py`). Rubric questions
@@ -23,6 +24,7 @@ from warehouse_scout.agent.loop import AgentResult, Effort, run_agent
 from warehouse_scout.agent.prompts import AGENT_PROMPT_VERSION, load_prompt
 from warehouse_scout.config import Settings, get_settings
 from warehouse_scout.evals import checks
+from warehouse_scout.evals.judge import LlmJudge
 from warehouse_scout.evals.questions import Question, load_questions
 from warehouse_scout.evals.translation import append_history, current_commit
 from warehouse_scout.llm.client import estimate_cost_usd, has_credentials, make_client
@@ -158,6 +160,9 @@ def run_eval(
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the question-answering eval on the agent.")
     parser.add_argument("--limit", type=int, help="ask only the first N questions")
+    parser.add_argument(
+        "--judge", action="store_true", help="grade rubric questions with the judge model"
+    )
     return parser.parse_args(argv)
 
 
@@ -177,7 +182,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         effort=settings.scout_effort,
     )
     questions = load_questions()[: args.limit]
-    graded = run_eval(answerer, questions, lookup_on_source(settings))
+    judge = LlmJudge(client, settings.scout_judge_model) if args.judge else None
+    graded = run_eval(answerer, questions, lookup_on_source(settings), judge)
     summary = summarize(graded)
 
     for item in graded:
@@ -190,6 +196,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"by check: {summary['by_check']}")
     print(f"statuses: {dict(Counter(g.status for g in graded))}")
     usage = answerer.usage_summary()
+    if judge:
+        usage |= {"judge_model": judge.model, "judge_prompt_version": judge.prompt_version}
+        for judgement in judge.judgements:
+            print(f"JUDGE {judgement.question_id}: {judgement.passed}; {judgement.reasoning[:160]}")
     print(f"usage: {usage}")
 
     if args.limit is None:
