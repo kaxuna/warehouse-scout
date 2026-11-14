@@ -17,7 +17,8 @@ from typing import Final
 
 import anthropic
 
-from warehouse_scout.config import Settings, get_settings
+from warehouse_scout.config import get_settings
+from warehouse_scout.llm.client import estimate_cost_usd, has_credentials, make_client
 
 # Room for the answer. Thinking tokens count against this limit too, so a
 # small value can cut a response off before any visible text is produced.
@@ -26,15 +27,6 @@ MAX_TOKENS = 16_000
 # How hard the model works on the request. "low" is enough for one small query
 # and keeps this call fast and cheap.
 EFFORT: Final = "low"
-
-# US dollars per million tokens (input, output), from Anthropic's pricing page.
-# Checked 2026-11-14. A model missing here gets no cost estimate, not a wrong one.
-PRICE_PER_MILLION_TOKENS: dict[str, tuple[float, float]] = {
-    "claude-fable-5-2": (8.00, 40.00),
-    "claude-opus-5-5": (4.00, 20.00),
-    "claude-sonnet-5-5": (2.00, 10.00),
-    "claude-haiku-5-5": (0.10, 0.50),
-}
 
 SYSTEM_PROMPT = (
     "You are Warehouse Scout, an assistant for data-warehouse migrations. "
@@ -65,22 +57,6 @@ class CallResult:
     request_id: str | None
 
 
-def make_client(settings: Settings) -> anthropic.Anthropic:
-    """Build the API client.
-
-    With a key in settings (read from `.env`), pass it explicitly. Without
-    one, let the SDK look in the process environment itself.
-    """
-    if settings.anthropic_api_key is None:
-        return anthropic.Anthropic()
-    return anthropic.Anthropic(api_key=settings.anthropic_api_key.get_secret_value())
-
-
-def has_credentials(client: anthropic.Anthropic) -> bool:
-    """True if the client found a key, a token or a credential provider."""
-    return bool(client.api_key or client.auth_token or client.credentials)
-
-
 def ask(client: anthropic.Anthropic, model: str, system: str, question: str) -> CallResult:
     """Send one user message and collect the reply with its usage numbers."""
     started = time.perf_counter()
@@ -106,15 +82,6 @@ def ask(client: anthropic.Anthropic, model: str, system: str, question: str) -> 
         latency_seconds=latency_seconds,
         request_id=response._request_id,
     )
-
-
-def estimate_cost_usd(model: str, input_tokens: int, output_tokens: int) -> float | None:
-    """Cost of one call in US dollars, or None if the model's price is unknown."""
-    prices = PRICE_PER_MILLION_TOKENS.get(model)
-    if prices is None:
-        return None
-    input_price, output_price = prices
-    return (input_tokens * input_price + output_tokens * output_price) / 1_000_000
 
 
 def format_report(result: CallResult) -> str:

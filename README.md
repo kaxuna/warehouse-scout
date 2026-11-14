@@ -40,6 +40,7 @@ Add your `ANTHROPIC_API_KEY` to `.env` (git-ignored; never commit it), then:
 
 ```bash
 make hello    # one Claude call: translate an Oracle query, print tokens, latency, cost
+make ask Q="Translate to PostgreSQL: SELECT * FROM item WHERE ROWNUM <= 5"   # the agent
 ```
 
 ## Results

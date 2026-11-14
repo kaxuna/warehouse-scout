@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target eval-translation hello psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -59,6 +59,9 @@ eval-translation: ## Score a translator: run originals on Oracle, translations o
 
 hello: ## First Claude API call (needs ANTHROPIC_API_KEY in .env)
 	uv run python -m warehouse_scout.llm.hello
+
+ask: ## Ask the agent: make ask Q="your question"
+	uv run python -m warehouse_scout.agent.cli "$(Q)"
 
 psql: ## Open a Postgres shell
 	docker compose exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'

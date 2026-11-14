@@ -8,6 +8,7 @@ traceback cannot leak them. Call `.get_secret_value()` at the point of use.
 """
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: SecretStr | None = None
     scout_model: str = "claude-opus-5-5"
+    # How hard the model works per request: more effort, more tokens and time.
+    scout_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
 
     # Postgres: Scout's own database and the migration target
     postgres_host: str = "localhost"
