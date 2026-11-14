@@ -89,3 +89,20 @@ def test_read_only_account_can_query_views_and_hierarchy(
     )
     (depth,) = readonly_cursor.fetchone()
     assert depth >= 3
+
+
+def test_orphan_customers_make_outer_and_inner_joins_differ(
+    readonly_cursor: oracledb.Cursor,
+) -> None:
+    readonly_cursor.execute(
+        "SELECT COUNT(*) FROM customer c, customer_address ca "
+        "WHERE c.c_current_addr_sk = ca.ca_address_sk(+)"
+    )
+    (outer_rows,) = readonly_cursor.fetchone()
+    readonly_cursor.execute(
+        "SELECT COUNT(*) FROM customer c, customer_address ca "
+        "WHERE c.c_current_addr_sk = ca.ca_address_sk"
+    )
+    (inner_rows,) = readonly_cursor.fetchone()
+
+    assert outer_rows > inner_rows

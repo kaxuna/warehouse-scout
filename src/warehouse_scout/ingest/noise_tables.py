@@ -19,6 +19,7 @@ import oracledb
 from warehouse_scout.config import get_settings
 from warehouse_scout.db import connect_oracle
 from warehouse_scout.ingest.noise_catalog import (
+    DATA_TRAPS,
     NOISE_FUNCTIONS,
     NOISE_TABLES,
     NOISE_VIEWS,
@@ -42,6 +43,11 @@ def comment_ddl(table: str, comment: str) -> str:
     # allowed. Doubling single quotes is SQL's own escape for them.
     escaped = comment.replace("'", "''")
     return f"COMMENT ON TABLE {table} IS '{escaped}'"
+
+
+def plant_data_traps(cursor: oracledb.Cursor) -> None:
+    for _, statement in DATA_TRAPS:
+        cursor.execute(statement)
 
 
 def create_functions(cursor: oracledb.Cursor, readonly_user: str) -> None:
@@ -98,7 +104,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     settings = get_settings()
 
     with connect_oracle(settings) as ora, ora.cursor() as cursor:
-        # Order matters: a view uses a function, and views read the tables.
+        # Order matters: traps first so table copies include them; a view uses
+        # a function, and views read the tables.
+        plant_data_traps(cursor)
+        ora.commit()
         create_functions(cursor, settings.oracle_ro_user)
         create_tables(cursor)
         create_views(cursor)

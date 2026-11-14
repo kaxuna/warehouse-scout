@@ -277,5 +277,8 @@
       "FISCAL_QUARTER",
       "GET_QTR"
     ]
-  }
+  },
+  "data_traps": [
+    "Every 25th customer has no current address, so outer and inner joins from customer to customer_address return different rows."
+  ]
 }

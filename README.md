@@ -50,7 +50,7 @@ PostgreSQL, and the rows are compared. A case passes only if both return the sam
 
 | Date | System | Pass / total | Cost / question |
 |---|---|---|---|
-| 2026-11-14 | sqlglot alone (baseline) | 22 / 42 (52%) | $0 |
+| 2026-11-14 | sqlglot alone (baseline, after eval hardening) | 21 / 42 (50%) | $0 |
 
 Run history: `evals/history/translation.jsonl`. What each change did: [CHANGELOG](CHANGELOG.md).
 

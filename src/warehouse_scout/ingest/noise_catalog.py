@@ -520,6 +520,23 @@ NOISE_FUNCTIONS: tuple[NoiseFunction, ...] = (
     ),
 )
 
+# --- Data traps ----------------------------------------------------------------
+
+# Changes to benchmark rows that make wrong translations visible. Clean
+# benchmark data hides bugs: if every customer has an address, an outer join
+# and an inner join return the same rows, and a translation that silently
+# swaps one for the other passes every comparison.
+#
+# (description, SQL). Applied before the junk tables are created, so copies
+# of a table include the change and stay true duplicates.
+DATA_TRAPS: tuple[tuple[str, str], ...] = (
+    (
+        "Every 25th customer has no current address, so outer and inner joins "
+        "from customer to customer_address return different rows.",
+        "UPDATE customer SET c_current_addr_sk = NULL WHERE MOD(c_customer_sk, 25) = 0",
+    ),
+)
+
 # --- Answer key ----------------------------------------------------------------
 
 
@@ -548,4 +565,5 @@ def build_manifest() -> dict[str, object]:
         "duplicate_function_groups": {
             group: sorted(names) for group, names in sorted(groups.items())
         },
+        "data_traps": [description for description, _ in DATA_TRAPS],
     }
