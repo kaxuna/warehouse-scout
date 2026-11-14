@@ -29,6 +29,7 @@ Requirements: Docker, [uv](https://docs.astral.sh/uv/), make.
 make sync     # install dependencies
 make up       # start Postgres + Oracle (creates .env from .env.example on first run)
 make check    # lint, type check, unit tests
+make load     # generate TPC-DS and copy it into Oracle
 ```
 
 Add your `ANTHROPIC_API_KEY` to `.env`. It is git-ignored; never commit it.
