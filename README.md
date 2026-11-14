@@ -34,6 +34,7 @@ make noise    # add ~100 junk tables, views and duplicate functions
 make querylog # write a synthetic 30-day query history to data/query_log.jsonl
 make copy-target  # copy all Oracle tables into Postgres, the migration target
 make extract  # read schema and query log from the source into Scout's own tables
+make index    # embed schema and query log into the pgvector search index
 make eval-translation  # score a translator against real results on both databases
 ```
 

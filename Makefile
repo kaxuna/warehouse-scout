@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract eval-translation hello ask psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -56,6 +56,9 @@ copy-target: ## Copy all Oracle tables (definitions and rows) into Postgres
 
 extract: ## Read schema and query log from the source into Scout's own tables
 	uv run python -m warehouse_scout.store.snapshot $(ARGS)
+
+index: ## Embed schema and query log into the pgvector search index (after `make extract`)
+	uv run python -m warehouse_scout.rag.index $(ARGS)
 
 eval-translation: ## Score a translator: run originals on Oracle, translations on Postgres
 	uv run python -m warehouse_scout.evals.translation $(ARGS)
