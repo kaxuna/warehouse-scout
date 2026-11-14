@@ -10,7 +10,9 @@ A case passes only on "match". The score is deterministic: no judge model,
 no human labels. Any `Translator` can be the system under test, which is how
 "sqlglot alone" and "agent" end up as two rows of the same table.
 
-    make eval-translation
+    make eval-translation                                  # sqlglot, free
+    make eval-translation ARGS="--system agent --limit 3"  # agent on 3 cases (costs money)
+    make eval-translation ARGS="--system agent"            # agent on all cases
 """
 
 import argparse
@@ -19,15 +21,20 @@ import random
 import subprocess
 import sys
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
+from warehouse_scout.agent.prompts import load_prompt
+from warehouse_scout.agent.translator import AgentTranslator
 from warehouse_scout.compare import compare_results
 from warehouse_scout.config import Settings, get_settings
 from warehouse_scout.ingest.query_log import render
 from warehouse_scout.ingest.query_templates import QUERY_TEMPLATES
+from warehouse_scout.llm.client import has_credentials, make_client
+from warehouse_scout.tools import build_tools
 from warehouse_scout.translate import SqlglotTranslator, Translator
 from warehouse_scout.warehouse import run_readonly
 
@@ -38,7 +45,40 @@ CASE_SEED = 1  # fixed, so every run evaluates the same literal values
 MAX_ROWS = 100_000
 TIMEOUT_SECONDS = 60.0
 
-SYSTEMS: dict[str, type[Translator]] = {"sqlglot": SqlglotTranslator}
+
+class MissingCredentialsError(RuntimeError):
+    """The chosen system needs an API key and none is configured."""
+
+
+@runtime_checkable
+class ReportsUsage(Protocol):
+    """A system under test that can say what its runs cost."""
+
+    def usage_summary(self) -> dict[str, object]: ...
+
+
+def _sqlglot(settings: Settings) -> Translator:
+    return SqlglotTranslator()
+
+
+def _agent(settings: Settings) -> Translator:
+    client = make_client(settings)
+    if not has_credentials(client):
+        raise MissingCredentialsError(
+            "The agent needs ANTHROPIC_API_KEY in .env (see .env.example)."
+        )
+    return AgentTranslator(
+        client=client,
+        model=settings.scout_model,
+        system=load_prompt(source_schema=settings.oracle_user.upper()),
+        # The agent's own draft tool is sqlglot: it starts where the baseline ends.
+        tools=build_tools(settings, SqlglotTranslator()),
+        effort=settings.scout_effort,
+    )
+
+
+# Each system is built by a function, because building one may need settings.
+SYSTEMS: dict[str, Callable[[Settings], Translator]] = {"sqlglot": _sqlglot, "agent": _agent}
 
 
 @dataclass(frozen=True)
@@ -136,12 +176,15 @@ def current_commit() -> str | None:
     return completed.stdout.strip()
 
 
-def history_record(system: str, results: Sequence[CaseResult]) -> dict[str, object]:
+def history_record(
+    system: str, results: Sequence[CaseResult], usage: dict[str, object] | None = None
+) -> dict[str, object]:
     return {
         "run_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "system": system,
         "commit": current_commit(),
         **summarize(results),
+        **(usage or {}),
         "failures": {result.case_id: result.status for result in results if not result.passed},
     }
 
@@ -155,6 +198,7 @@ def append_history(record: dict[str, object], path: Path = HISTORY_PATH) -> None
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the translation eval.")
     parser.add_argument("--system", choices=sorted(SYSTEMS), default="sqlglot")
+    parser.add_argument("--limit", type=int, help="run only the first N cases")
     parser.add_argument("--no-history", action="store_true", help="do not record this run")
     parser.add_argument("--details", type=Path, help="write full per-case results as JSON here")
     return parser.parse_args(argv)
@@ -163,10 +207,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     settings = get_settings()
-    translator = SYSTEMS[args.system]()
+    try:
+        translator = SYSTEMS[args.system](settings)
+    except MissingCredentialsError as error:
+        print(error, file=sys.stderr)
+        return 1
 
-    results = [run_case(settings, translator, case) for case in build_cases()]
+    cases = build_cases()[: args.limit]  # [:None] is the whole list
+    results = [run_case(settings, translator, case) for case in cases]
     summary = summarize(results)
+    usage = translator.usage_summary() if isinstance(translator, ReportsUsage) else {}
 
     print(format_table(results))
     print()
@@ -176,12 +226,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         "compared zero rows."
     )
     print(f"by status: {summary['by_status']}")
+    if usage:
+        print(f"usage: {usage}")
 
     if args.details:
         args.details.parent.mkdir(parents=True, exist_ok=True)
         args.details.write_text(json.dumps([asdict(r) for r in results], indent=2) + "\n")
-    if not args.no_history:
-        append_history(history_record(args.system, results))
+    if args.limit is not None:
+        print("Partial run (--limit): not recorded in the history.")
+    elif not args.no_history:
+        append_history(history_record(args.system, results, usage))
         print(f"Recorded in {HISTORY_PATH}")
     return 0
 
