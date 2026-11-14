@@ -1,14 +1,8 @@
-"""Spec for the pure functions of the loader. No database needed.
-
-Every test is marked xfail while the functions are stubs, so CI stays green.
-When your implementation passes, delete the `pytestmark` line below.
-"""
+"""Tests for the schema-translation functions of the loader. No database needed."""
 
 import pytest
 
 from warehouse_scout.ingest.load_benchmark import Column, create_table_ddl, oracle_type
-
-pytestmark = pytest.mark.xfail(raises=NotImplementedError, reason="exercise not written yet")
 
 
 @pytest.mark.parametrize(
@@ -38,12 +32,25 @@ def test_create_table_ddl() -> None:
         Column(name="i_current_price", duckdb_type="DECIMAL(7,2)", nullable=True),
     ]
 
-    ddl = create_table_ddl("item", columns)
-
-    # Whitespace and letter case are yours to choose; compare normalized.
-    assert " ".join(ddl.upper().split()) == (
-        "CREATE TABLE ITEM ("
-        "I_ITEM_SK NUMBER(19) NOT NULL, "
-        "I_ITEM_DESC VARCHAR2(4000), "
-        "I_CURRENT_PRICE NUMBER(7,2))"
+    assert create_table_ddl("item", columns) == (
+        "CREATE TABLE item ("
+        "i_item_sk NUMBER(19) NOT NULL, "
+        "i_item_desc VARCHAR2(4000), "
+        "i_current_price NUMBER(7,2))"
     )
+
+
+def test_create_table_ddl_rejects_table_without_columns() -> None:
+    with pytest.raises(ValueError, match="no columns"):
+        create_table_ddl("item", [])
+
+
+@pytest.mark.parametrize("bad_name", ["item; DROP TABLE x", "1item", "it em", ""])
+def test_create_table_ddl_rejects_unsafe_identifiers(bad_name: str) -> None:
+    safe_column = Column(name="id", duckdb_type="BIGINT", nullable=False)
+    bad_column = Column(name=bad_name, duckdb_type="BIGINT", nullable=False)
+
+    with pytest.raises(ValueError, match="identifier"):
+        create_table_ddl(bad_name, [safe_column])
+    with pytest.raises(ValueError, match="identifier"):
+        create_table_ddl("item", [bad_column])
