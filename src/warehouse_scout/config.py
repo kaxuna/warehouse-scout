@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     # How hard the model works per request: more effort, more tokens and time.
     scout_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
 
+    # Model that grades free-text answers in evals
+    scout_judge_model: str = "claude-opus-5-5"
     # Which embedder builds and queries the search index
     scout_embedder: Literal["fastembed", "hash"] = "fastembed"
 
