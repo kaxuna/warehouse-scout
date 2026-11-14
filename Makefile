@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target hello psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target eval-translation hello psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -53,6 +53,9 @@ querylog: ## Generate the synthetic query log into data/query_log.jsonl
 
 copy-target: ## Copy all Oracle tables (definitions and rows) into Postgres
 	uv run python -m warehouse_scout.migrate.copy_tables $(ARGS)
+
+eval-translation: ## Score a translator: run originals on Oracle, translations on Postgres
+	uv run python -m warehouse_scout.evals.translation $(ARGS)
 
 hello: ## First Claude API call (needs ANTHROPIC_API_KEY in .env)
 	uv run python -m warehouse_scout.llm.hello
