@@ -9,7 +9,7 @@ versions is readable.
 from pathlib import Path
 
 PROMPTS_DIR = Path(__file__).resolve().parents[3] / "prompts"
-AGENT_PROMPT_VERSION = "agent_v1"
+AGENT_PROMPT_VERSION = "agent_v2"
 
 
 def load_prompt(version: str = AGENT_PROMPT_VERSION, **values: str) -> str:

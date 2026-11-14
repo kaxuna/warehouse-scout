@@ -7,6 +7,7 @@ import anthropic
 import pytest
 
 from tests.fakes import response, scripted_client, text_block, tool_use_block
+from warehouse_scout.agent.prompts import AGENT_PROMPT_VERSION
 from warehouse_scout.agent.translator import AgentTranslator, extract_sql
 from warehouse_scout.evals.translation import (
     SYSTEMS,
@@ -106,7 +107,7 @@ def test_usage_summary_totals_all_runs() -> None:
     # (2200 * $4 + 320 * $20) per million tokens, over 2 cases
     assert summary["cost_usd"] == pytest.approx(0.0152)
     assert summary["cost_per_case_usd"] == pytest.approx(0.0076)
-    assert summary["prompt_version"] == "agent_v1"
+    assert summary["prompt_version"] == AGENT_PROMPT_VERSION
 
 
 def test_history_record_includes_usage() -> None:

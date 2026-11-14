@@ -5,6 +5,23 @@ Format: what changed → score before → score after → cost per question.
 
 ## Unreleased
 
+### Week 3 — retrieval
+
+Retrieval eval: 32 questions, each with the objects that answer it. Is a right
+answer in the top 5 search hits?
+
+| Date | Embedder | Kind filter | Recall@1 | Recall@5 | MRR |
+|---|---|---|---|---|---|
+| 2026-11-14 | Word counts (baseline) | no | 6% | 9% | 0.08 |
+| 2026-11-14 | Word counts (baseline) | yes | 12% | 38% | 0.22 |
+| 2026-11-14 | bge-small, local | no | 59% | 81% | 0.65 |
+| 2026-11-14 | bge-small, local | yes | **78%** | **91%** | **0.84** |
+
+- Neural embeddings vs word counting: recall@5 38% → 91% with the filter.
+- Metadata filter on kind: recall@5 81% → 91% for the neural model.
+- Agent prompt `agent_v2` adds the `search_schema` tool. Effect on the
+  translation eval: not measured yet (needs an API key).
+
 ### Week 2 — translation eval and baseline
 
 | Date | Change | Translation eval (pass / total) | Cost per question |

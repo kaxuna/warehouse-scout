@@ -1,0 +1,32 @@
+{"question": "Where are purchases made in physical shops recorded?", "kind": "table", "expected_names": ["STORE_SALES"]}
+{"question": "Which table lists products and what they cost?", "kind": "table", "expected_names": ["ITEM", "DIM_ITEM"]}
+{"question": "Where can I find the postal addresses of shoppers?", "kind": "table", "expected_names": ["CUSTOMER_ADDRESS"]}
+{"question": "orders placed on the internet", "kind": "table", "expected_names": ["WEB_SALES"]}
+{"question": "goods sent back after being bought online", "kind": "table", "expected_names": ["WEB_RETURNS"]}
+{"question": "how much stock is on hand in each depot", "kind": "table", "expected_names": ["INVENTORY"]}
+{"question": "calendar lookup with year, quarter and month for each day", "kind": "table", "expected_names": ["DATE_DIM", "DIM_DATE"]}
+{"question": "who reports to whom in the company", "kind": "table", "expected_names": ["EMPLOYEE"]}
+{"question": "foreign exchange rates", "kind": "table", "expected_names": ["CURRENCY_RATE"]}
+{"question": "membership levels of the rewards scheme", "kind": "table", "expected_names": ["LOYALTY_MEMBER"]}
+{"question": "revenue goals each shop is expected to reach", "kind": "table", "expected_names": ["SALES_TARGET"]}
+{"question": "bank holidays", "kind": "table", "expected_names": ["HOLIDAY_CALENDAR"]}
+{"question": "did the nightly batch job fail?", "kind": "table", "expected_names": ["ETL_RUN_LOG"]}
+{"question": "advertising campaigns and their budgets", "kind": "table", "expected_names": ["PROMOTION", "MARKETING_CAMPAIGN"]}
+{"question": "why do people bring things back", "kind": "table", "expected_names": ["REASON"]}
+{"question": "delivery methods and carriers", "kind": "table", "expected_names": ["SHIP_MODE"]}
+{"question": "salary brackets of households", "kind": "table", "expected_names": ["INCOME_BAND", "HOUSEHOLD_DEMOGRAPHICS"]}
+{"question": "telephone ordering centres", "kind": "table", "expected_names": ["CALL_CENTER"]}
+{"question": "gender, marital status and education of buyers", "kind": "table", "expected_names": ["CUSTOMER_DEMOGRAPHICS"]}
+{"question": "which three-month period of the year a day falls in", "kind": "function", "expected_names": ["FISCAL_QUARTER", "GET_QTR"]}
+{"question": "amount to pay once the rebate is taken off", "kind": "function", "expected_names": ["FN_NET_PRICE", "CALC_NET_AMOUNT", "GET_DISCOUNTED_PRICE"]}
+{"question": "is this day a Saturday or Sunday", "kind": "function", "expected_names": ["IS_WEEKEND"]}
+{"question": "join a person's given name and surname for display", "kind": "function", "expected_names": ["FULL_NAME", "FMT_CUSTOMER_NAME"]}
+{"question": "profit as a percentage of the selling price", "kind": "function", "expected_names": ["MARGIN_PCT", "PROFIT_MARGIN"]}
+{"question": "one row per shopper with where they live and their rewards level", "kind": "view", "expected_names": ["V_CUSTOMER_360"]}
+{"question": "takings per shop per day", "kind": "view", "expected_names": ["V_DAILY_STORE_SALES"]}
+{"question": "query that walks the management hierarchy", "kind": "query", "expected_text": ["CONNECT BY PRIOR employee_id"]}
+{"question": "best selling products", "kind": "query", "expected_text": ["i_product_name, SUM(ss.ss_net_paid)"]}
+{"question": "people who bought online but never in a shop", "kind": "query", "expected_text": ["MINUS SELECT ss_customer_sk"]}
+{"question": "revenue per product category for one month", "kind": "query", "expected_text": ["SUM(ss.ss_ext_sales_price) AS revenue", "SUM(s.ss_ext_sales_price) AS total_sales"]}
+{"question": "how often are sold items returned", "kind": "query", "expected_text": ["NVL2(sr.sr_ticket_number"]}
+{"question": "nightly refresh of the customer dimension copy", "kind": "query", "expected_text": ["MERGE INTO dim_customer"]}

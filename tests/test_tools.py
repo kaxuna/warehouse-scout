@@ -77,7 +77,7 @@ def tools_by_name(translation: Translation | None = None) -> dict[str, Tool]:
     return {tool.name: tool for tool in build_tools(None, translator)}  # type: ignore[arg-type]
 
 
-def test_three_tools_with_strict_schemas() -> None:
+def test_tools_have_strict_schemas() -> None:
     tools = tools_by_name()
 
     assert set(tools) == {"run_readonly_sql", "translate_sql", "compare_query_results"}

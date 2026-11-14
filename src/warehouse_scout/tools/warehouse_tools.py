@@ -1,10 +1,13 @@
-"""The agent's three tools: query a database, translate SQL, compare two queries."""
+"""The agent's tools: query a database, translate SQL, compare two queries, search the schema."""
 
 import json
 from typing import Any
 
 from warehouse_scout.compare import compare_results
 from warehouse_scout.config import Settings
+from warehouse_scout.db import connect_postgres
+from warehouse_scout.rag.embedder import Embedder
+from warehouse_scout.rag.search import KINDS, search
 from warehouse_scout.tools.base import Tool, ToolError
 from warehouse_scout.translate import Translator
 from warehouse_scout.warehouse import QueryResult, run_readonly
@@ -17,6 +20,10 @@ MODEL_MAX_ROWS = 50
 # only its verdict goes to the model, so this limit can be generous.
 COMPARE_MAX_ROWS = 100_000
 COMPARE_TIMEOUT_SECONDS = 60.0
+
+# Characters of a chunk shown per search hit: enough to recognise the object.
+SEARCH_SNIPPET_CHARS = 400
+SEARCH_LIMIT = 8
 
 _DATABASE_PROPERTY = {
     "type": "string",
@@ -47,11 +54,14 @@ def format_result(result: QueryResult) -> str:
     return json.dumps(payload, default=str)
 
 
-def build_tools(settings: Settings, translator: Translator) -> list[Tool]:
+def build_tools(
+    settings: Settings, translator: Translator, embedder: Embedder | None = None
+) -> list[Tool]:
     """Create the tools, bound to this configuration and translator.
 
     The handlers are closures: functions defined here that keep using
     `settings` and `translator` after `build_tools` has returned.
+    `search_schema` is included only when an embedder is given.
     """
 
     def run_readonly_sql(arguments: dict[str, Any]) -> str:
@@ -102,7 +112,55 @@ def build_tools(settings: Settings, translator: Translator) -> list[Tool]:
             }
         )
 
+    def search_schema(arguments: dict[str, Any]) -> str:
+        assert embedder is not None  # the tool is only registered with an embedder
+        kinds = None if arguments["kind"] == "any" else [arguments["kind"]]
+        with connect_postgres(settings) as pg:
+            hits = search(pg, embedder, arguments["query"], kinds=kinds, limit=SEARCH_LIMIT)
+        return json.dumps(
+            [
+                {
+                    "kind": hit.kind,
+                    "name": hit.object_name,
+                    "score": round(hit.score, 3),
+                    "text": hit.content[:SEARCH_SNIPPET_CHARS],
+                    **hit.metadata,
+                }
+                for hit in hits
+            ]
+        )
+
+    search_tool = Tool(
+        name="search_schema",
+        description=(
+            "Search an index of the source warehouse by meaning. It covers every "
+            "table, view and function (name, comment, columns, source code) and "
+            "every distinct query shape in the query log. Use it to find the right "
+            "object when you do not know its name; there are many near-duplicate "
+            f"and abandoned tables. Returns up to {SEARCH_LIMIT} hits, best first, "
+            "each with a similarity score and usage figures: 'query_runs' is how "
+            "often the query log references an object (0 means nothing uses it), "
+            "'row_count' its size, and for query shapes 'runs', 'users' and "
+            "'average_ms'. Literals in query shapes are replaced by '?'."
+        ),
+        input_schema=_object_schema(
+            {
+                "query": {
+                    "type": "string",
+                    "description": "What you are looking for, in plain words.",
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": ["any", *KINDS],
+                    "description": "Restrict results to one kind of object, or 'any'.",
+                },
+            }
+        ),
+        handler=search_schema,
+    )
+
     return [
+        *([search_tool] if embedder is not None else []),
         Tool(
             name="run_readonly_sql",
             description=(
