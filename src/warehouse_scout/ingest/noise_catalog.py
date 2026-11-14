@@ -540,6 +540,25 @@ DATA_TRAPS: tuple[tuple[str, str], ...] = (
 # --- Answer key ----------------------------------------------------------------
 
 
+def duplicate_table_groups() -> list[list[str]]:
+    """Sets of tables that hold identical rows, as sorted upper-case names.
+
+    Two ways tables end up identical: a full copy of a benchmark table (the
+    group then includes that original), or several junk tables built from the
+    very same SELECT, such as the same scratch query run by four people.
+    """
+    by_content: dict[str, list[str]] = {}
+    for table in NOISE_TABLES:
+        if table.duplicate_of is not None:
+            # Keyed by the original's name, which also joins the group below.
+            by_content.setdefault(table.duplicate_of, [table.duplicate_of]).append(table.name)
+        else:
+            by_content.setdefault(table.select_sql, []).append(table.name)
+
+    groups = [sorted(name.upper() for name in names) for names in by_content.values()]
+    return sorted(group for group in groups if len(group) > 1)
+
+
 def build_manifest() -> dict[str, object]:
     """The planted defects, as plain data ready to be written as JSON.
 
@@ -562,6 +581,7 @@ def build_manifest() -> dict[str, object]:
             ),
             key=lambda entry: entry["table"],
         ),
+        "duplicate_table_groups": duplicate_table_groups(),
         "duplicate_function_groups": {
             group: sorted(names) for group, names in sorted(groups.items())
         },
