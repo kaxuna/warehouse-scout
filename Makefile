@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: setup-data eval-gate help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
+.PHONY: setup-data eval-gate eval-qa help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -77,6 +77,9 @@ setup-data: ## Build everything the evals need, from empty databases (about 3 mi
 
 eval-gate: ## Run all key-free evals; fail if any score is below evals/thresholds.json
 	uv run python -m warehouse_scout.evals.gate
+
+eval-qa: ## Ask the agent the golden questions and check the answers (needs an API key)
+	uv run python -m warehouse_scout.evals.qa $(ARGS)
 
 eval-translation: ## Score a translator: run originals on Oracle, translations on Postgres
 	uv run python -m warehouse_scout.evals.translation $(ARGS)

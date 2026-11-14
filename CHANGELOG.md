@@ -15,6 +15,11 @@ Minimums are the scores measured so far: translation (sqlglot) 50%, retrieval
 recall@5 85% and MRR 0.75, duplicate tables and functions 100% precision and
 recall. No scores changed in this step.
 
+Golden question set: 52 questions generated from the project's ground truth
+(`evals/golden/questions.jsonl`). 44 are checked without a model (yes/no,
+names, numbers); 8 free-text questions carry a rubric for the judge model.
+`make eval-qa` asks the agent. Not yet scored: needs an API key.
+
 ### Week 3 — retrieval
 
 Retrieval eval: 32 questions, each with the objects that answer it. Is a right
