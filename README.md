@@ -26,19 +26,15 @@ AI assistant for data-warehouse migration assessment. Point it at a warehouse an
 Requirements: Docker, [uv](https://docs.astral.sh/uv/), make.
 
 ```bash
-make sync     # install dependencies
-make up       # start Postgres + Oracle (creates .env from .env.example on first run)
-make check    # lint, type check, unit tests
-make load     # generate TPC-DS and copy it into Oracle
-make noise    # add ~100 junk tables, views and duplicate functions
-make querylog # write a synthetic 30-day query history to data/query_log.jsonl
-make copy-target  # copy all Oracle tables into Postgres, the migration target
-make extract  # read schema and query log from the source into Scout's own tables
-make index    # embed schema and query log into the pgvector search index
-make eval-retrieval    # score search: is the right object in the top 5?
-make eval-duplicates   # score duplicate detection for tables and functions
-make eval-translation  # score a translator against real results on both databases
+make sync         # install dependencies
+make up           # start Postgres + Oracle (creates .env from .env.example on first run)
+make check        # lint, type check, unit tests
+make setup-data   # load TPC-DS, add the mess, copy to Postgres, extract, index (about 3 minutes)
+make eval-gate    # run every key-free eval; fails if a score is below evals/thresholds.json
 ```
+
+`make help` lists the single steps (`load`, `noise`, `querylog`, `copy-target`, `extract`,
+`index`) and the single evals (`eval-translation`, `eval-retrieval`, `eval-duplicates`).
 
 Add your `ANTHROPIC_API_KEY` to `.env` (git-ignored; never commit it), then:
 
