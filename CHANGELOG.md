@@ -10,6 +10,7 @@ Format: what changed → score before → score after → cost per question.
 | Date | Change | Translation eval (pass / total) | Cost per question |
 |---|---|---|---|
 | 2026-11-14 | Baseline: sqlglot alone, Oracle to PostgreSQL | **22 / 42 (52%)** | $0 (no model) |
+| 2026-11-14 | Eval hardened: customers without an address planted in the data. No change to any translator. | **21 / 42 (50%)** | $0 |
 
 Baseline details: 17 translations fail to run on PostgreSQL, 3 run and return
 different rows, 22 return the same rows as Oracle (1 of those on zero rows).
@@ -22,10 +23,12 @@ Why the 20 fail:
 - 2 use date arithmetic or `MONTHS_BETWEEN` that PostgreSQL types reject
 - 3 run but are wrong: `(+)` turned into an inner join twice, `PIVOT` dropped once
 
-Known weakness of the eval itself: `customers_missing_address` passes although
-its `(+)` join was turned into an inner join. Every customer in the data has an
-address, so both joins return the same rows. The data needs orphan rows to
-catch this.
+Weakness found in the eval itself, then fixed: `customers_missing_address`
+passed although its `(+)` join had been turned into an inner join. Every
+customer had an address, so both joins returned the same rows. With every 25th
+customer given no address, the case now fails as it should. The score went
+down because the measurement got better, not because anything got worse.
+22/42 was one false pass too high; 21/42 is the baseline to compare against.
 
 Agent added (tools `run_readonly_sql`, `translate_sql`, `compare_query_results`;
 hand-written loop; prompt `agent_v1`) and wired into the same eval as sqlglot.
