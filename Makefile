@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
+.PHONY: setup-data eval-gate help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -65,6 +65,18 @@ eval-retrieval: ## Score search: is the right object in the top 5? (after `make 
 
 eval-duplicates: ## Score duplicate detection for tables and functions against the answer key
 	uv run python -m warehouse_scout.evals.duplicates $(ARGS)
+
+setup-data: ## Build everything the evals need, from empty databases (about 3 minutes)
+	$(MAKE) load ARGS="--scale-factor 0.1"
+	$(MAKE) noise
+	$(MAKE) querylog
+	$(MAKE) copy-target
+	$(MAKE) extract
+	$(MAKE) index
+	$(MAKE) index ARGS="--embedder hash"
+
+eval-gate: ## Run all key-free evals; fail if any score is below evals/thresholds.json
+	uv run python -m warehouse_scout.evals.gate
 
 eval-translation: ## Score a translator: run originals on Oracle, translations on Postgres
 	uv run python -m warehouse_scout.evals.translation $(ARGS)

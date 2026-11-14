@@ -5,6 +5,16 @@ Format: what changed → score before → score after → cost per question.
 
 ## Unreleased
 
+### Week 4 — eval gate
+
+`make eval-gate` runs every eval that needs no API key and fails if a score is
+below its minimum in `evals/thresholds.json`. A CI job starts Oracle and
+PostgreSQL, builds the data, and runs it on every pull request.
+
+Minimums are the scores measured so far: translation (sqlglot) 50%, retrieval
+recall@5 85% and MRR 0.75, duplicate tables and functions 100% precision and
+recall. No scores changed in this step.
+
 ### Week 3 — retrieval
 
 Retrieval eval: 32 questions, each with the objects that answer it. Is a right
