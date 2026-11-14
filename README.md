@@ -34,7 +34,11 @@ make noise    # add ~100 junk tables, views and duplicate functions
 make querylog # write a synthetic 30-day query history to data/query_log.jsonl
 ```
 
-Add your `ANTHROPIC_API_KEY` to `.env`. It is git-ignored; never commit it.
+Add your `ANTHROPIC_API_KEY` to `.env` (git-ignored; never commit it), then:
+
+```bash
+make hello    # one Claude call: translate an Oracle query, print tokens, latency, cost
+```
 
 ## Results
 
