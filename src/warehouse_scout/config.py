@@ -9,7 +9,7 @@ traceback cannot leak them. Call `.get_secret_value()` at the point of use.
 
 from functools import lru_cache
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     oracle_password: SecretStr
     oracle_ro_user: str
     oracle_ro_password: SecretStr
+
+    @field_validator("anthropic_api_key", mode="before")
+    @classmethod
+    def _empty_key_means_unset(cls, value: object) -> object:
+        # `.env.example` ships the line `ANTHROPIC_API_KEY=`. Left unfilled, that
+        # is an empty string, which must count as "no key", not as a key.
+        return value or None
 
     @property
     def oracle_dsn(self) -> str:

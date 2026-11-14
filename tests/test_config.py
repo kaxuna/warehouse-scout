@@ -55,3 +55,19 @@ def test_missing_required_variable_fails_fast(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.delenv("ORACLE_PASSWORD")
     with pytest.raises(ValidationError):
         load()
+
+
+@pytest.mark.usefixtures("env")
+def test_empty_api_key_counts_as_unset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    assert load().anthropic_api_key is None
+
+
+@pytest.mark.usefixtures("env")
+def test_api_key_is_read_and_kept_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    settings = load()
+
+    assert settings.anthropic_api_key is not None
+    assert settings.anthropic_api_key.get_secret_value() == "test-key"
+    assert "test-key" not in repr(settings)
