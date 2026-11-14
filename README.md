@@ -36,6 +36,7 @@ make copy-target  # copy all Oracle tables into Postgres, the migration target
 make extract  # read schema and query log from the source into Scout's own tables
 make index    # embed schema and query log into the pgvector search index
 make eval-retrieval    # score search: is the right object in the top 5?
+make eval-duplicates   # score duplicate detection for tables and functions
 make eval-translation  # score a translator against real results on both databases
 ```
 
@@ -62,6 +63,14 @@ top 5 search hits?
 |---|---|---|---|
 | 2026-11-14 | Word counts (baseline) | 38% | 0.22 |
 | 2026-11-14 | bge-small, local, with kind filter | 91% | 0.84 |
+
+Duplicate detection, scored on pairs against planted duplicates:
+
+| Date | Kind | Method | Precision | Recall |
+|---|---|---|---|---|
+| 2026-11-15 | Tables | Compare rows on the source | 100% | 100% |
+| 2026-11-15 | Functions | Compare outputs on sample inputs | 100% | 100% |
+| 2026-11-15 | Either | Embedding similarity alone (best case) | 60–80% | 47–67% |
 
 Run history: `evals/history/`. What each change did: [CHANGELOG](CHANGELOG.md).
 

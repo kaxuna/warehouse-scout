@@ -1,0 +1,4 @@
+{"run_at": "2026-11-14T23:24:31+00:00", "commit": "4181cce", "kind": "table", "method": "exact", "predicted": 153, "correct": 153, "precision": 1.0, "recall": 1.0, "f1": 1.0}
+{"run_at": "2026-11-14T23:24:31+00:00", "commit": "4181cce", "kind": "table", "method": "embedding >= 0.90 (best)", "predicted": 120, "correct": 72, "precision": 0.6, "recall": 0.4706, "f1": 0.5275}
+{"run_at": "2026-11-14T23:24:31+00:00", "commit": "4181cce", "kind": "function", "method": "exact", "predicted": 6, "correct": 6, "precision": 1.0, "recall": 1.0, "f1": 1.0}
+{"run_at": "2026-11-14T23:24:31+00:00", "commit": "4181cce", "kind": "function", "method": "embedding >= 0.81 (best)", "predicted": 5, "correct": 4, "precision": 0.8, "recall": 0.6667, "f1": 0.7273}

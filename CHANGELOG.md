@@ -22,6 +22,25 @@ answer in the top 5 search hits?
 - Agent prompt `agent_v2` adds the `search_schema` tool. Effect on the
   translation eval: not measured yet (needs an API key).
 
+Duplicate-detection eval, scored on pairs against the planted answer key
+(153 duplicate table pairs, 6 duplicate function pairs):
+
+| Date | Kind | Method | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| 2026-11-15 | Tables | Same columns, row count and rows (`MINUS` both ways) | 100% | 100% | 1.00 |
+| 2026-11-15 | Tables | Embedding similarity, best threshold | 60% | 47% | 0.53 |
+| 2026-11-15 | Functions | Same outputs on sample inputs | 100% | 100% | 1.00 |
+| 2026-11-15 | Functions | Embedding similarity, best threshold | 80% | 67% | 0.73 |
+
+- Where an exact answer exists (same rows, same outputs), the exact method
+  wins outright. Embeddings are a way to propose candidates, not to decide.
+- The embedding thresholds were chosen on this same data, which flatters them.
+- Answer key corrected again: the first version knew only copies of benchmark
+  tables (95 pairs). Scratch tables built from one query by four people, and
+  eight identical throwaway tables, are duplicates too (58 more pairs). Scored
+  against the old key, the detector would have been charged with 58 false
+  positives that were in fact correct.
+
 ### Week 2 — translation eval and baseline
 
 | Date | Change | Translation eval (pass / total) | Cost per question |

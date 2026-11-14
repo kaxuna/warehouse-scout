@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-translation hello ask psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -62,6 +62,9 @@ index: ## Embed schema and query log into the pgvector search index (after `make
 
 eval-retrieval: ## Score search: is the right object in the top 5? (after `make index` for each embedder)
 	uv run python -m warehouse_scout.evals.retrieval $(ARGS)
+
+eval-duplicates: ## Score duplicate detection for tables and functions against the answer key
+	uv run python -m warehouse_scout.evals.duplicates $(ARGS)
 
 eval-translation: ## Score a translator: run originals on Oracle, translations on Postgres
 	uv run python -m warehouse_scout.evals.translation $(ARGS)
