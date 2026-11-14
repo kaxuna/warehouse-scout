@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync up down reset logs wait lint fmt typecheck test check load hello psql sqlplus
+.PHONY: help sync up down reset logs lint fmt typecheck test check psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -38,12 +38,6 @@ test: ## Unit tests (no databases needed)
 	uv run pytest -m "not integration"
 
 check: lint typecheck test ## Everything CI runs
-
-load: ## Load TPC-DS into Oracle
-	uv run python -m warehouse_scout.ingest.load_benchmark
-
-hello: ## First Claude API call
-	uv run python -m warehouse_scout.llm.hello
 
 psql: ## Open a Postgres shell
 	docker compose exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
