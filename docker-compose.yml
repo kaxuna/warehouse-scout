@@ -1,0 +1,49 @@
+# Two databases:
+#   postgres — Scout's own store (metadata, embeddings, logs) AND the migration target
+#   oracle   — the source warehouse being assessed (real Oracle, free edition)
+#
+# Values come from .env (see .env.example).
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_RO_USER: ${POSTGRES_RO_USER}
+      POSTGRES_RO_PASSWORD: ${POSTGRES_RO_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_ADMIN_PASSWORD}
+      APP_USER: ${ORACLE_USER}
+      APP_USER_PASSWORD: ${ORACLE_PASSWORD}
+      ORACLE_RO_USER: ${ORACLE_RO_USER}
+      ORACLE_RO_PASSWORD: ${ORACLE_RO_PASSWORD}
+    ports:
+      - "${ORACLE_PORT}:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./db/oracle/init:/container-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+volumes:
+  postgres-data:
+  oracle-data:

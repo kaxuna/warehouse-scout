@@ -1,0 +1,58 @@
+[project]
+name = "warehouse-scout"
+version = "0.1.0"
+description = "AI assistant for data-warehouse migration assessment: what matters, what breaks, verified rewrites."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=2.8.0",
+    "duckdb>=2.0.0",
+    "oracledb>=26.1.0",
+    "psycopg[binary]>=3.3.9",
+    "pydantic-settings>=2.16.3",
+    "sqlglot>=30.31.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"
+
+# --- Tooling -----------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (unused imports, undefined names)
+    "I",   # import sorting
+    "UP",  # pyupgrade: flag pre-3.12 idioms
+    "B",   # bugbear: likely bugs
+    "SIM", # simplifications
+    "C4",  # comprehension idioms
+    "PTH", # prefer pathlib over os.path
+    "RET", # return-statement hygiene
+    "RUF", # ruff's own rules
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: needs the Docker Compose databases running",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]
