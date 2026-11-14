@@ -33,6 +33,7 @@ make load     # generate TPC-DS and copy it into Oracle
 make noise    # add ~100 junk tables, views and duplicate functions
 make querylog # write a synthetic 30-day query history to data/query_log.jsonl
 make copy-target  # copy all Oracle tables into Postgres, the migration target
+make eval-translation  # score a translator against real results on both databases
 ```
 
 Add your `ANTHROPIC_API_KEY` to `.env` (git-ignored; never commit it), then:
@@ -43,11 +44,14 @@ make hello    # one Claude call: translate an Oracle query, print tokens, latenc
 
 ## Results
 
-_To be filled from eval runs — accuracy history, cost per question, latency._
+Translation eval: each read query of the workload runs on Oracle, its translation runs on
+PostgreSQL, and the rows are compared. A case passes only if both return the same rows.
 
-| Date | Change | Accuracy | Cost / question |
+| Date | System | Pass / total | Cost / question |
 |---|---|---|---|
-| — | — | — | — |
+| 2026-11-14 | sqlglot alone (baseline) | 22 / 42 (52%) | $0 |
+
+Run history: `evals/history/translation.jsonl`. What each change did: [CHANGELOG](CHANGELOG.md).
 
 ## Known limitations
 
