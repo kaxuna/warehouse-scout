@@ -28,7 +28,10 @@ address, so both joins return the same rows. The data needs orphan rows to
 catch this.
 
 Agent added (tools `run_readonly_sql`, `translate_sql`, `compare_query_results`;
-hand-written loop; prompt `agent_v1`). Not yet scored: needs an API key.
+hand-written loop; prompt `agent_v1`) and wired into the same eval as sqlglot.
+Not yet scored: needs an API key. To score it:
+`make eval-translation ARGS="--system agent"`. The run appends accuracy, tokens
+and cost per question to `evals/history/translation.jsonl`; add the row above.
 
 ### Week 1 — scaffolding and data
 - Project scaffolding: uv, ruff, mypy, pytest, Docker Compose (Postgres + pgvector, Oracle Free), CI.
