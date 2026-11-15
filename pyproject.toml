@@ -8,6 +8,7 @@ dependencies = [
     "anthropic>=2.8.0",
     "duckdb>=2.0.0",
     "fastembed>=0.9.1",
+    "mcp>=2.3.0",
     "oracledb>=26.1.0",
     "psycopg[binary]>=3.3.9",
     "pydantic-settings>=2.16.3",
