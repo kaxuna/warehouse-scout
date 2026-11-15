@@ -43,6 +43,33 @@ make hello    # one Claude call: translate an Oracle query, print tokens, latenc
 make ask Q="Translate to PostgreSQL: SELECT * FROM item WHERE ROWNUM <= 5"   # the agent
 ```
 
+## Use the tools from Claude Code or Claude Desktop (MCP)
+
+The same tools the built-in agent uses are served over the Model Context Protocol, so
+another AI client can work with the warehouse directly. With the databases up and
+`make setup-data` done:
+
+```bash
+claude mcp add warehouse-scout -- uv run --directory "$PWD" python -m warehouse_scout.mcp_server
+```
+
+For Claude Desktop, add this to `claude_desktop_config.json` (replace the path):
+
+```json
+{
+  "mcpServers": {
+    "warehouse-scout": {
+      "command": "uv",
+      "args": ["run", "--directory", "/absolute/path/to/warehouse-scout",
+               "python", "-m", "warehouse_scout.mcp_server"]
+    }
+  }
+}
+```
+
+Tools: `search_schema`, `run_readonly_sql`, `translate_sql`, `compare_query_results`.
+Database access through them is read-only, time-limited and row-limited.
+
 ## Results
 
 Translation eval: each read query of the workload runs on Oracle, its translation runs on

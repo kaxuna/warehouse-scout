@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: setup-data eval-gate eval-qa eval-judge help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
+.PHONY: mcp setup-data eval-gate eval-qa eval-judge help sync up down reset logs lint fmt typecheck test test-integration check load noise querylog copy-target extract index eval-retrieval eval-duplicates eval-translation hello ask psql sqlplus
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -92,6 +92,9 @@ hello: ## First Claude API call (needs ANTHROPIC_API_KEY in .env)
 
 ask: ## Ask the agent: make ask Q="your question"
 	uv run python -m warehouse_scout.agent.cli "$(Q)"
+
+mcp: ## Run the MCP server on stdin/stdout (normally started by an MCP client, not by hand)
+	uv run python -m warehouse_scout.mcp_server
 
 psql: ## Open a Postgres shell
 	docker compose exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'

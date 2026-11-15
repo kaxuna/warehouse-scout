@@ -5,6 +5,13 @@ Format: what changed → score before → score after → cost per question.
 
 ## Unreleased
 
+### Week 5 — MCP server
+
+`python -m warehouse_scout.mcp_server` serves the agent's four tools over the
+Model Context Protocol (stdio), from the same `Tool` definitions the agent
+uses. Tested through a real MCP client, in-process and as a subprocess.
+Eval impact: none (no change to the agent).
+
 ### Week 4 — eval gate
 
 `make eval-gate` runs every eval that needs no API key and fails if a score is
